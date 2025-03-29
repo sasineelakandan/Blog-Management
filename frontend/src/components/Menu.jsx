@@ -12,6 +12,7 @@ const Menu = () => {
     try {
       await axios.get(URL + "/api/auth/logout", { withCredentials: true });
       setUser(null); 
+      localStorage.setItem('user','')
       navigate("/login");
     } catch (err) {
       console.log(err);
