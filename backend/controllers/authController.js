@@ -9,6 +9,7 @@ const router = express.Router();
 export const register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
+        console.log(req.body)
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         const newUser = new User({ username, email, password: hashedPassword });
@@ -22,6 +23,7 @@ export const register = async (req, res) => {
 // LOGIN
 export const login = async (req, res) => {
     try {
+        console.log(req.body)
         const user = await User.findOne({ email: req.body.email });
         if (!user) {
             return res.status(404).json("User not found!");

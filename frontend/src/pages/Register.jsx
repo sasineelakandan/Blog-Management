@@ -8,7 +8,7 @@ import { UserContext } from "../context/UserContext";
 import { ToastContainer, toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
-
+console.log(URL)
 const Register = () => {
   const navigate = useNavigate();
 

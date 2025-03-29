@@ -14,28 +14,23 @@ const Home = () => {
   const [displayedPosts, setDisplayedPosts] = useState([]);
   const [noResults, setNoResults] = useState(false);
   const [loader, setLoader] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1); 
-  const [postsPerPage] = useState(3); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postsPerPage] = useState(3);
   const { user } = useContext(UserContext);
 
   const fetchPosts = async () => {
     setLoader(true);
     try {
       const res = await axios.get(`${URL}/api/posts/${search}`);
-      setPosts(res.data);
-      setNoResults(res.data.length === 0);
-      setLoader(false);
+      const data = Array.isArray(res.data) ? res.data : [];
+      setPosts(data);
+      setNoResults(data.length === 0);
     } catch (err) {
       console.log(err);
-      setLoader(false);
       setNoResults(true);
+    } finally {
+      setLoader(false);
     }
-  };
-
-  const paginatePosts = () => {
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    setDisplayedPosts(posts.slice(indexOfFirstPost, indexOfLastPost));
   };
 
   useEffect(() => {
@@ -43,7 +38,13 @@ const Home = () => {
   }, [search]);
 
   useEffect(() => {
-    paginatePosts(); 
+    if (Array.isArray(posts)) {
+      const indexOfLastPost = currentPage * postsPerPage;
+      const indexOfFirstPost = indexOfLastPost - postsPerPage;
+      setDisplayedPosts(posts.slice(indexOfFirstPost, indexOfLastPost));
+    } else {
+      setDisplayedPosts([]);
+    }
   }, [posts, currentPage]);
 
   return (
@@ -69,15 +70,16 @@ const Home = () => {
           ) : (
             <>
               <div className="grid gap-8">
-                {displayedPosts.map((post) => (
-                  <Link
-                    to={user ? `/posts/post/${post?._id}` : "/login"}
-                    key={post?._id}
-                    className="block transition-transform transform hover:scale-105"
-                  >
-                    <HomePosts post={post} />
-                  </Link>
-                ))}
+                {Array.isArray(displayedPosts) &&
+                  displayedPosts.map((post) => (
+                    <Link
+                      to={user ? `/posts/post/${post?._id}` : "/login"}
+                      key={post?._id}
+                      className="block transition-transform transform hover:scale-105"
+                    >
+                      <HomePosts post={post} />
+                    </Link>
+                  ))}
               </div>
 
               <div className="flex justify-center mt-8 space-x-4">
@@ -93,7 +95,7 @@ const Home = () => {
                   Prev
                 </button>
                 <span className="px-4 py-2 text-lg font-semibold text-gray-800">
-                  Page {currentPage} of {Math.ceil(posts.length / postsPerPage)}
+                  Page {currentPage} of {Math.max(1, Math.ceil(posts.length / postsPerPage))}
                 </span>
                 <button
                   onClick={() =>
@@ -101,9 +103,9 @@ const Home = () => {
                       Math.min(currentPage + 1, Math.ceil(posts.length / postsPerPage))
                     )
                   }
-                  disabled={currentPage === Math.ceil(posts.length / postsPerPage)}
+                  disabled={currentPage === Math.ceil(posts.length / postsPerPage) || posts.length === 0}
                   className={`px-4 py-2 rounded-md text-white transition-all ${
-                    currentPage === Math.ceil(posts.length / postsPerPage)
+                    currentPage === Math.ceil(posts.length / postsPerPage) || posts.length === 0
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-indigo-600 hover:bg-indigo-700"
                   }`}

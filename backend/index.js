@@ -31,8 +31,12 @@ const connectDB = async () => {
 dotenv.config();
 app.use(express.json());
 app.use("/images", express.static(imagesDir)); 
-app.use(cors({ origin: process.env.FRONTEND, credentials: true }));
 app.use(cookieParser());
+app.use(cors({
+  origin: process.env.FRONTEND, 
+  credentials: true                
+}));
+
 app.use("/api/auth", authRoute);
 app.use("/api/posts", postRoute);
 
