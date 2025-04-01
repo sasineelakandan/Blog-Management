@@ -4,12 +4,14 @@ import HomePosts from "../components/HomePosts";
 import Navbar from "../components/Navbar";
 import { URL } from "../url";
 import { useContext, useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import { UserContext } from "../context/UserContext";
 
 const Home = () => {
-  const { search } = useLocation();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { search } = location;
   const [posts, setPosts] = useState([]);
   const [displayedPosts, setDisplayedPosts] = useState([]);
   const [noResults, setNoResults] = useState(false);
@@ -47,6 +49,10 @@ const Home = () => {
     }
   }, [posts, currentPage]);
 
+  const clearSearch = () => {
+    navigate("/");
+  };
+
   return (
     <>
       <div className="bg-gray-50 min-h-[80vh] py-10">
@@ -57,6 +63,14 @@ const Home = () => {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Discover the latest trends, insights, and tips from our vibrant community of writers and thinkers.
           </p>
+          {search && (
+            <button
+              onClick={clearSearch}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            >
+              Clear Search
+            </button>
+          )}
         </div>
         <div className="px-8 md:px-[200px]">
           {loader ? (
